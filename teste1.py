@@ -31,11 +31,11 @@ def LSestimation(N, P, array_x, array_y):
     
     return beta, X
 
-#3
+# %% 3
 array_x = np.load('data1_x.npy')
 array_y = np.load('data1_y.npy')
-N = 20
-P = 1
+N = len(array_x)
+P = 2
 beta, X = LSestimation(N, P, array_x, array_y)
 
 y_calc = np.matmul(X, beta)
@@ -43,6 +43,52 @@ plt.plot(array_x, y_calc,'r')
 plt.plot(array_x, array_y, 'b*')
 plt.show()
 
-error = y_calc - array_y
-    
-quadratic_error = np.matmul(np.transpose(error), error)
+error = y_calc - array_y    
+sse = np.matmul(np.transpose(error), error)
+
+# %%4
+
+array_x = np.load('data2_x.npy')
+array_y = np.load('data2_y.npy')
+
+N = len(array_x)
+P = 2
+beta, X = LSestimation(N, P, array_x, array_y)
+
+y_calc = np.matmul(X, beta)
+plt.plot(array_x, y_calc,'r^')
+plt.plot(array_x, array_y, 'b*')
+plt.show()
+
+error = y_calc - array_y    
+sse = np.matmul(np.transpose(error), error)
+#SSE=1.342 -> GRANDE devido ao ruído?!
+
+# %% 5
+array_x = np.load('data2a_x.npy')
+array_y = np.load('data2a_y.npy')
+
+N = len(array_x)
+P = 2
+beta, X = LSestimation(N, P, array_x, array_y)
+
+y_calc = np.matmul(X, beta)
+plt.plot(array_x, y_calc,'r^')
+plt.plot(array_x, array_y, 'b*')
+plt.show()
+
+error = y_calc - array_y    
+sse = np.matmul(np.transpose(error), error)
+
+# %% Regularization
+from sklearn import linear_model
+
+data3_x = np.load('data3_x.npy')
+data3_y = np.load('data3_y.npy')
+
+reg = linear_model.RidgeCV(alphas=np.logspace(-3, 1, 5), 10000)
+reg.fit(data3_x, data3_y)
+
+
+
+
