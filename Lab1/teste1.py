@@ -91,26 +91,60 @@ data3_y = np.load('data3_y.npy')
 alpha_arr = np.arange(0.001, 10, 0.01)
 coefs = []
 
+alfa = -1
+
 beta, X = LSestimation(len(data3_x), 2, data3_x, data3_y)
 beta_aux = np.tile(np.transpose(beta),(len(alpha_arr),1))
 
 for a in alpha_arr:
     ridge = linear_model.Ridge(alpha=a, max_iter= 10000)
     ridge.fit(data3_x, data3_y)
+    
+    lasso = linear_model.Lasso(alpha=a, max_iter = 10000)
+    lasso.fit(data3_x, data3_y)
+    
+    lasso_predict = lasso.predict(X)
+    
+    #Convert into column vector
+    lasso_predict = np.array(lasso_predict[np.newaxis])
+    lasso_predict = lasso_predict.transpose()
+    
+    #SSE calculation
+    sse_lasso = np.matmul(np.transpose(lasso_predict - data3_y), lasso_predict - data3_y)
+    
+    #Save the best lasso alfa
+    #DUVIDA: Perguntar se o melhor alfa é o 1o para o qual 1 dos coefs do lasso é 0 ou aquele q tem mais coefs a 0?
+    
     if a == 0.001:
-        coefs = ridge.coef_
+        ridge_coefs = ridge.coef_
+        lasso_coefs = lasso.coef_
     else:
-        coefs = np.r_[coefs, ridge.coef_]
+        ridge_coefs = np.r_[ridge_coefs, ridge.coef_]
+        lasso_coefs = np.c_[lasso_coefs, lasso.coef_]
+
+lasso_coefs = lasso_coefs.transpose()
 
 # DUVIDA: Usa-se B0, B1 e B2 ou B1,B2,B3
 plt.figure()
 plt.plot(alpha_arr, beta_aux, linestyle='--')
-plt.plot(alpha_arr, coefs)
+plt.plot(alpha_arr, ridge_coefs)
 plt.legend(['B1 LS', 'B2 LS', 'B3 LS', 'B1 Ridge', 'B2 Ridge', 'B3 Ridge'])
 plt.xscale('log')
 plt.xlabel('Alpha')
 plt.ylabel('Coefficients')
 plt.title('Regularization - Ridge Method')
+plt.axis('tight')
+plt.show()
+
+#Lasso Plot
+plt.figure()
+plt.plot(alpha_arr, beta_aux, linestyle='--')
+plt.plot(alpha_arr, lasso_coefs)
+plt.legend(['B1 LS', 'B2 LS', 'B3 LS', 'B1 Lasso', 'B2 Lasso', 'B3 Lasso'])
+plt.xscale('log')
+plt.xlabel('Alpha')
+plt.ylabel('Coefficients')
+plt.title('Regularization - Lasso Method')
 plt.axis('tight')
 plt.show()
 
