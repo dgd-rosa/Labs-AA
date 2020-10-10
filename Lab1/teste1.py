@@ -21,7 +21,7 @@ def preProcess(x):
         new_x[:,col] = np.subtract(new_x[:,col], x_avg)
         
     return new_x
-def LSestimation(N, P, array_x, array_y, index):
+def LSestimation(N, P, array_x, array_y):
     X = [[0] * (P+1)] * N   
     X = np.array(X)
     X = X.astype(float)
@@ -33,7 +33,7 @@ def LSestimation(N, P, array_x, array_y, index):
     while i < N:
         j = 0
         while j <= P:
-            X[i,j] = array_x[i,index]**j
+            X[i,j] = array_x[i,0]**j
             j += 1
         i += 1
         
@@ -48,10 +48,10 @@ def LSestimation(N, P, array_x, array_y, index):
 array_x = np.load('data1_x.npy')
 array_y = np.load('data1_y.npy')
 N = len(array_x)
-P = 2
-array_x = preProcess(array_x)
-array_y = preProcess(array_y)
-beta, X = LSestimation(N, P, array_x, array_y, 0)
+P = 1
+#array_x = preProcess(array_x)
+#array_y = preProcess(array_y)
+beta, X = LSestimation(N, P, array_x, array_y)
 
 y_calc = np.matmul(X, beta)
 plt.plot(array_x, y_calc,'r')
@@ -68,9 +68,9 @@ array4_y = np.load('data2_y.npy')
 
 N = len(array4_x)
 P = 2
-array4_x = preProcess(array4_x)
-array4_y = preProcess(array4_y)
-beta, X = LSestimation(N, P, array4_x, array4_y, 0)
+#array4_x = preProcess(array4_x)
+#array4_y = preProcess(array4_y)
+beta, X = LSestimation(N, P, array4_x, array4_y)
 
 y_calc = np.matmul(X, beta)
 plt.plot(array4_x, y_calc,'r^')
@@ -89,7 +89,7 @@ N = len(array5_x)
 P = 2
 array5_x = preProcess(array5_x)
 array5_y = preProcess(array5_y)
-beta, X = LSestimation(N, P, array5_x, array5_y, 0)
+beta, X = LSestimation(N, P, array5_x, array5_y)
 
 y_calc = np.matmul(X, beta)
 plt.plot(array5_x, y_calc,'r^')
@@ -97,8 +97,38 @@ plt.plot(array5_x, array5_y, 'b*')
 plt.show()
 
 error = y_calc - array5_y    
-print(np.matmul(np.transpose(error), error))
+sse = np.matmul(np.transpose(error), error)
 # dont know exactly what are outliers and if they need to be removed à la pata
+
+# %%5 without outliers
+def retireOutliers(array_x, array_y):
+    new_arrayx = []
+    new_arrayy = []
+    i = 0
+    while i < len(array_x):
+        if abs(array_y[i]) <= 1.5:
+            new_arrayx.append(array_x[i])
+            new_arrayy.append(array_y[i])
+        i+=1
+    return new_arrayx, new_arrayy
+    
+    
+array5_x = np.load('data2a_x.npy')
+array5_y = np.load('data2a_y.npy')
+
+
+new_arrayx, new_arrayy = retireOutliers(array5_x, array5_y)
+N = len(new_arrayx)
+P = 2
+beta, X = LSestimation(N, P, new_arrayx, new_arrayy)
+
+y_calc = np.matmul(X, beta)
+plt.plot(new_arrayx, y_calc,'r^')
+plt.plot(new_arrayx, new_arrayy, 'b*')
+plt.show()
+
+error = y_calc - new_arrayy  
+sse = np.matmul(np.transpose(error), error)
 
 # %% Regularization
 from sklearn import linear_model
@@ -113,8 +143,6 @@ coefs = []
 alfa = -1
 data3_x = preProcess(data3_x1)
 data3_y = preProcess(data3_y1)
-beta1, X = LSestimation(len(data3_x), 2, data3_x, data3_y, 1)
-
 
 for a in alpha_arr:
     ridge = linear_model.Ridge(alpha=a, max_iter= 10000)
