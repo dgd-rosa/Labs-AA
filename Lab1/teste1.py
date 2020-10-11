@@ -140,7 +140,6 @@ data3_y1 = np.load('data3_y.npy')
 alpha_arr = np.arange(0.001, 10, 0.01)
 coefs = []
 
-alfa = -1
 data3_x = preProcess(data3_x1)
 data3_y = preProcess(data3_y1)
 
@@ -150,15 +149,6 @@ for a in alpha_arr:
     
     lasso = linear_model.Lasso(alpha=a, max_iter = 10000)
     lasso.fit(data3_x, data3_y)
-    
-    lasso_predict = lasso.predict(X)
-    
-    #Convert into column vector
-    lasso_predict = np.array(lasso_predict[np.newaxis])
-    lasso_predict = lasso_predict.transpose()
-    
-    #SSE calculation
-    sse_lasso = np.matmul(np.transpose(lasso_predict - data3_y), lasso_predict - data3_y)
     
     #Save the best lasso alfa
     #DUVIDA: Perguntar se o melhor alfa é o 1o para o qual 1 dos coefs do lasso é 0 ou aquele q tem mais coefs a 0?
@@ -200,6 +190,46 @@ plt.axis('tight')
 plt.show()
 #alpha=0.1 =>>> MELHOR ALPHA
 
+# %% regularization 7
+#choose alpha = 0.1
+from sklearn import linear_model
+import numpy as np
+import matplotlib.pyplot as plt
 
+data3_x1 = np.load('data3_x.npy')
+data3_y1 = np.load('data3_y.npy')
 
+data3_x = preProcess(data3_x1)
+data3_y = preProcess(data3_y1)
+N = len(data3_x)
+P = 2
+#LSestimation
+beta, X = LSestimation(N, P, data3_x, data3_y)
+y_calc = np.matmul(X, beta)
 
+#LassoEstimation
+lasso = linear_model.Lasso(alpha=0.1, max_iter = 10000)
+lasso.fit(data3_x, data3_y)
+lasso_coefs = lasso.coef_
+
+lasso_predict = lasso.predict(X)
+lasso_predict = np.array(lasso_predict[np.newaxis])
+lasso_predict = lasso_predict.transpose()
+
+sse_LSS = np.matmul(np.transpose(y_calc - data3_y), y_calc - data3_y)
+sse_lasso = np.matmul(np.transpose(lasso_predict - data3_y), lasso_predict - data3_y)
+
+num = lasso_predict.shape[0]
+scale = np.linspace(0, num-1, num=50)
+plt.figure()
+
+plt.scatter(scale, lasso_predict, color = 'blue')
+plt.scatter(scale, y_calc, color = 'red')
+plt.legend(['Lasso Prediction', 'Least Squares Prediction'])
+
+plt.show()
+
+print("2.2.7")
+print("Alfa: 0.1")
+print("SSE LS: ", sse_LSS[0,0])
+print("SSE Lasso: ", sse_lasso[0,0])
