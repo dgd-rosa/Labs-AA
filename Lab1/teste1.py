@@ -195,6 +195,28 @@ plt.show()
 from sklearn import linear_model
 import numpy as np
 import matplotlib.pyplot as plt
+def LSestimation20(N, P, array_x, array_y, n_col):
+    X = [[0] * (P+1)] * N   
+    X = np.array(X)
+    X = X.astype(float)
+    
+    array_x = np.array(array_x)
+    i = 0
+    j = 0
+    #creating matrix X
+    while i < N:
+        j = 0
+        while j <= P:
+            X[i,j] = array_x[i,n_col]**j
+            j += 1
+        i += 1
+        
+    
+    aux1 = np.linalg.inv(np.matmul(np.transpose(X), X))
+    
+    beta = np.matmul(np.matmul(aux1, np.transpose(X)), array_y)
+    
+    return beta, X
 
 data3_x1 = np.load('data3_x.npy')
 data3_y1 = np.load('data3_y.npy')
@@ -203,30 +225,33 @@ data3_x = preProcess(data3_x1)
 data3_y = preProcess(data3_y1)
 N = len(data3_x)
 P = 2
+
 #LSestimation
-beta, X = LSestimation(N, P, data3_x, data3_y)
-y_calc = np.matmul(X, beta)
+#beta retirado do lasso alpha = 0
+betas1, X1 = LSestimation20(N, P, data3_x, data3_y, 0)
+betas2, X2 = LSestimation20(N, P, data3_x, data3_y, 1)
+betas3, X3 = LSestimation20(N, P, data3_x, data3_y, 2)
 
 #LassoEstimation
 lasso = linear_model.Lasso(alpha=0.1, max_iter = 10000)
 lasso.fit(data3_x, data3_y)
 lasso_coefs = lasso.coef_
 
-lasso_predict = lasso.predict(X)
-lasso_predict = np.array(lasso_predict[np.newaxis])
-lasso_predict = lasso_predict.transpose()
 
+lasso_predict1 = lasso.predict(X1)
+lasso_predict1 = np.array(lasso_predict1[np.newaxis])
+lasso_predict1 = lasso_predict1.transpose()
+
+y_calc = np.matmul(X1, betas1)
 sse_LSS = np.matmul(np.transpose(y_calc - data3_y), y_calc - data3_y)
-sse_lasso = np.matmul(np.transpose(lasso_predict - data3_y), lasso_predict - data3_y)
+sse_lasso = np.matmul(np.transpose(lasso_predict1 - data3_y), lasso_predict1 - data3_y)
 
-num = lasso_predict.shape[0]
+num = lasso_predict1.shape[0]
 scale = np.linspace(0, num-1, num=50)
 plt.figure()
-
-plt.scatter(scale, lasso_predict, color = 'blue')
+plt.scatter(scale, lasso_predict1, color = 'blue')
 plt.scatter(scale, y_calc, color = 'red')
 plt.legend(['Lasso Prediction', 'Least Squares Prediction'])
-
 plt.show()
 
 print("2.2.7")
