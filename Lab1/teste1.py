@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Oct  8 09:39:26 2020
-
 @author: danie and gg
 """
 
@@ -204,29 +203,6 @@ plt.show()
 from sklearn import linear_model
 import numpy as np
 import matplotlib.pyplot as plt
-def LSestimation20(N, P, array_x, array_y, n_col):
-    X = [[0] * (P+1)] * N   
-    X = np.array(X)
-    X = X.astype(float)
-    
-    array_x = np.array(array_x)
-    i = 0
-    j = 0
-    #creating matrix X
-    while i < N:
-        j = 0
-        while j <= P:
-            X[i,j] = array_x[i,n_col]**j
-            j += 1
-        i += 1
-        
-    
-    aux1 = np.linalg.inv(np.matmul(np.transpose(X), X))
-    
-    beta = np.matmul(np.matmul(aux1, np.transpose(X)), array_y)
-    
-    return beta, X
-
 data3_x1 = np.load('data3_x.npy')
 data3_y1 = np.load('data3_y.npy')
 
@@ -236,12 +212,18 @@ N = len(data3_x)
 P = 2
 
 #LassoEstimation
-best_alpha = 0.1
+best_alpha = 0.071
 lasso = linear_model.Lasso(alpha=best_alpha, max_iter = 10000)
 lasso.fit(data3_x, data3_y)
 lasso_coefs = lasso.coef_
-
 y_lasso_calc = np.matmul(lasso_coefs, np.transpose(data3_x))
+
+#LSestimation
+LS_estimation = linear_model.Lasso(alpha=0, max_iter = 10000)
+LS_estimation.fit(data3_x, data3_y)
+LS_coefs = LS_estimation.coef_
+y_LS_calc = np.matmul(LS_coefs, np.transpose(data3_x))
+
 
 scale = np.linspace(0, len(data3_x), num=50)
 plt.figure()
@@ -250,10 +232,22 @@ plt.plot(scale, y_lasso_calc, color = 'red')
 
 plt.title('Lasso Prediction VS Real Value')
 plt.legend(['Data Y', 'Lasso Prediction'])
+plt.figure()
+plt.plot(scale, y_lasso_calc, color = 'red')
+plt.plot(scale, y_LS_calc, color = 'blue')
+
+
+plt.title('LSS Prediction VS Lasso Prediction')
+plt.legend(['Lasso Prediction', 'LSS Prediction'])
 plt.show()
 
-error = np.subtract(y_lasso_calc.reshape(-1,1), data3_y)
-sse = np.matmul(np.transpose(error), error)
-print("Question 7: SSE: " , sse)
+error_lasso = np.subtract(y_lasso_calc.reshape(-1,1), data3_y)
+sse_lasso = np.matmul(np.transpose(error_lasso), error_lasso)
+error_LS = np.subtract(y_LS_calc.reshape(-1,1), data3_y)
+sse_LS = np.matmul(np.transpose(error_LS), error_LS)
+print("Question 7: Lasso SSE: " , sse, "LS SSE: ", sse_LS)
+
+
+
 
 
