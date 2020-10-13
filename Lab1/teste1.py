@@ -2,7 +2,7 @@
 """
 Created on Thu Oct  8 09:39:26 2020
 
-@author: danie
+@author: danie and gg
 """
 
 import numpy as np
@@ -60,7 +60,7 @@ plt.show()
 
 error = y_calc - array_y    
 sse = np.matmul(np.transpose(error), error)
-
+print("Question 3: " , beta , "SSE: " , sse)
 # %%4
 
 array4_x = np.load('data2_x.npy')
@@ -81,6 +81,8 @@ error = y_calc - array4_y
 sse = np.matmul(np.transpose(error), error)
 #SSE=1.342 -> GRANDE devido ao ruído?!
 
+print("Question 4: " , beta , "SSE: " , sse)
+
 # %% 5
 array5_x = np.load('data2a_x.npy')
 array5_y = np.load('data2a_y.npy')
@@ -99,6 +101,8 @@ plt.show()
 error = y_calc - array5_y    
 sse = np.matmul(np.transpose(error), error)
 # dont know exactly what are outliers and if they need to be removed à la pata
+print("Question 5: " , beta , "SSE: " , sse)
+
 
 # %%5 without outliers
 def retireOutliers(array_x, array_y):
@@ -129,6 +133,7 @@ plt.show()
 
 error = y_calc - new_arrayy  
 sse = np.matmul(np.transpose(error), error)
+print("Question 5.2: " , beta , "SSE: " , sse)
 
 # %% Regularization
 from sklearn import linear_model
@@ -167,9 +172,11 @@ beta_lasso = np.tile(np.transpose(beta_lasso),(len(alpha_arr),1))
 beta_ridge = np.tile(np.transpose(beta_ridge),(len(alpha_arr),1))
 # DUVIDA: Usa-se B0, B1 e B2 ou B1,B2,B3
 plt.figure()
-plt.plot(alpha_arr, beta_ridge, linestyle='--')
 plt.plot(alpha_arr, ridge_coefs)
-plt.legend(['B1 LS', 'B2 LS', 'B3 LS', 'B1 Ridge', 'B2 Ridge', 'B3 Ridge'])
+plt.plot(alpha_arr, beta_ridge[:,0], linestyle='--', color='blue')
+plt.plot(alpha_arr, beta_ridge[:,1], linestyle='--', color='orange')
+plt.plot(alpha_arr, beta_ridge[:,2], linestyle='--', color='green')
+plt.legend(['B1 Ridge', 'B2 Ridge', 'B3 Ridge', 'B1 LS', 'B2 LS', 'B3 LS'])
 plt.xscale('log')
 plt.xlabel('Alpha')
 plt.ylabel('Coefficients')
@@ -179,7 +186,9 @@ plt.show()
 
 #Lasso Plot
 plt.figure()
-plt.plot(alpha_arr, beta_lasso, linestyle='--')
+plt.plot(alpha_arr, beta_lasso[:,0], linestyle='--', color='blue')
+plt.plot(alpha_arr, beta_lasso[:,1], linestyle='--', color='orange')
+plt.plot(alpha_arr, beta_lasso[:,2], linestyle='--', color='green')
 plt.plot(alpha_arr, lasso_coefs)
 plt.legend(['B1 LS', 'B2 LS', 'B3 LS', 'B1 Lasso', 'B2 Lasso', 'B3 Lasso'])
 plt.xscale('log')
@@ -226,35 +235,25 @@ data3_y = preProcess(data3_y1)
 N = len(data3_x)
 P = 2
 
-#LSestimation
-#beta retirado do lasso alpha = 0
-betas1, X1 = LSestimation20(N, P, data3_x, data3_y, 0)
-betas2, X2 = LSestimation20(N, P, data3_x, data3_y, 1)
-betas3, X3 = LSestimation20(N, P, data3_x, data3_y, 2)
-
 #LassoEstimation
-lasso = linear_model.Lasso(alpha=0.1, max_iter = 10000)
+best_alpha = 0.1
+lasso = linear_model.Lasso(alpha=best_alpha, max_iter = 10000)
 lasso.fit(data3_x, data3_y)
 lasso_coefs = lasso.coef_
 
+y_lasso_calc = np.matmul(lasso_coefs, np.transpose(data3_x))
 
-lasso_predict1 = lasso.predict(X1)
-lasso_predict1 = np.array(lasso_predict1[np.newaxis])
-lasso_predict1 = lasso_predict1.transpose()
-
-y_calc = np.matmul(X1, betas1)
-sse_LSS = np.matmul(np.transpose(y_calc - data3_y), y_calc - data3_y)
-sse_lasso = np.matmul(np.transpose(lasso_predict1 - data3_y), lasso_predict1 - data3_y)
-
-num = lasso_predict1.shape[0]
-scale = np.linspace(0, num-1, num=50)
+scale = np.linspace(0, len(data3_x), num=50)
 plt.figure()
-plt.scatter(scale, lasso_predict1, color = 'blue')
-plt.scatter(scale, y_calc, color = 'red')
-plt.legend(['Lasso Prediction', 'Least Squares Prediction'])
+plt.plot(scale, data3_y, color = 'blue')
+plt.plot(scale, y_lasso_calc, color = 'red')
+
+plt.title('Lasso Prediction VS Real Value')
+plt.legend(['Data Y', 'Lasso Prediction'])
 plt.show()
 
-print("2.2.7")
-print("Alfa: 0.1")
-print("SSE LS: ", sse_LSS[0,0])
-print("SSE Lasso: ", sse_lasso[0,0])
+error = np.subtract(y_lasso_calc.reshape(-1,1), data3_y)
+sse = np.matmul(np.transpose(error), error)
+print("Question 7: SSE: " , sse)
+
+
