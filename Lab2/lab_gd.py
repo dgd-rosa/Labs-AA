@@ -18,8 +18,8 @@ def quad1(x_o=-9.0,a=1.0,eta=0.1,threshold=0.01,maxiter=1000,anim=1):
     
     y = (a*x1a**2)/2
     
-    plt.clf()
-    plt.plot(x1a,y)
+    #plt.clf()
+    #plt.plot(x1a,y)
     
     ###Gradient Method####
     while it != maxiter:
@@ -48,19 +48,36 @@ def quad1(x_o=-9.0,a=1.0,eta=0.1,threshold=0.01,maxiter=1000,anim=1):
         
     if it == maxiter:
         print('Did not converge in %d steps, f = %f' %(it+1,f))
-        plt.show()
-        return x_o
+        #plt.show()
+        return x_o, (it+1)
     else:
         print('Converged in %d steps, f = %f' %(it+1,f))
-        plt.show()
-        return x_o
-
+        #plt.show()
+        return x_o, (it+1)
+'''
 print('****STARTING PART 1****')
-x_min = quad1(anim=1)
+x_min, it = quad1(x_o=-9,a=0.5,eta=1,threshold=0.01,maxiter=1000,anim=0)
 print('The estimated value is %f' %(x_min))
- 
-print('****STARTING PART 2****')
+'''
 
+'''
+#compute the fastest
+eta_array = np.linspace(0.1, 5, num=50)
+
+for i in eta_array:
+    if i == 0.1:
+        x_min, fast = quad1(x_o=-9,a=0.5,eta=i,threshold=0.01,maxiter=1000,anim=0)
+        fast_eta = i
+        continue
+    x_min, it = quad1(x_o=-9,a=0.5,eta=i,threshold=0.01,maxiter=1000,anim=0)
+    if it > 1000:
+        fast = it
+        fast_eta = i
+        break
+print('DIvergence with %d iterations, eta = %f' %(fast, fast_eta))
+
+#print('****STARTING PART 2****')
+'''
 ###Quad2
 def quad2(x_o=[-9.0,9.0],a=2.0,eta=0.1,threshold=0.01,maxiter=1000,alpha=0,anim = 1):
     it = 0
@@ -71,7 +88,7 @@ def quad2(x_o=[-9.0,9.0],a=2.0,eta=0.1,threshold=0.01,maxiter=1000,alpha=0,anim 
     [X,Y] = np.meshgrid(x1,x2)
     
     Y = (a*X**2+Y**2)/2
-    
+    '''
     plt.clf()
     plt.contour(Y,10)
     plt.xticks([0,5,10,15,20],[-10, -5, 0, 5, 10])
@@ -80,7 +97,7 @@ def quad2(x_o=[-9.0,9.0],a=2.0,eta=0.1,threshold=0.01,maxiter=1000,alpha=0,anim 
     ax.set_aspect('equal','box')
     
     plt.tight_layout()
-    
+    '''
     
     f = (a*x_o[0]**2+x_o[1]**2)/2
     
@@ -107,25 +124,40 @@ def quad2(x_o=[-9.0,9.0],a=2.0,eta=0.1,threshold=0.01,maxiter=1000,alpha=0,anim 
                 it += 1
         except:
             print('Diverged!')
-            plt.show()
+            #plt.show()
             break
         
     if it == maxiter:
         print('Did not converge in %d steps, f = %f' %(it,f))
-        plt.show()
-        return x_o
+        #plt.show()
+        return x_o, (it+1)
     else:
         print('Converged in %d steps, f = %f' %(it+1,f))
-        plt.show()
-        return x_o
+        #plt.show()
+        return x_o, (it+1)
     
-
-x_min = quad2(anim = 1)
-print('The estimated value is %s' %(x_min))
-
+'''
 print('****STARTING PART 2 WITH MOMENTUM****')
-x_min = quad2(a=20.0,eta=1,anim = 1,alpha=0.9)
+
+x_min = quad2(a=20,eta=0.003, alpha = 0, anim = 0, threshold=0.01,maxiter=1000)
 print('The estimated value is %s' %(x_min))
+'''
+'''
+#compute the fastest
+eta_array = np.linspace(3, 6, num=300)
+
+for i in eta_array:
+    if i == 0.1:
+        x_min, fast = quad2(a=20, eta=i,anim = 0, alpha=0.95)
+        fast_eta = i
+        continue
+    x_min, it = quad2(a=20, eta=i,anim = 0, alpha = 0.95)
+    if it > 1000:
+        fast = it
+        fast_eta = i
+        break
+print('Div with %d iterations, eta = %f' %(fast, fast_eta))
+'''
 
 def rosen(x_o=[-1.5,1.0],a=20.0,eta=0.001,threshold=0.001,maxiter=1000,alpha=0.0,anim = 1,up = 1,down = 1,reduce = 1):
     it = 0
@@ -138,7 +170,7 @@ def rosen(x_o=[-1.5,1.0],a=20.0,eta=0.001,threshold=0.001,maxiter=1000,alpha=0.0
     Y = (1-X)**2 + a*(Y-X**2)**2
     
     v = np.linspace(math.floor(a/80)+3,Y.max(),math.floor(a))
-
+    '''
     plt.clf()      
     plt.contour(Y,v)
     plt.xticks([0,50,100,150,200],[-2, -1, 0, 1, 2])
@@ -149,7 +181,7 @@ def rosen(x_o=[-1.5,1.0],a=20.0,eta=0.001,threshold=0.001,maxiter=1000,alpha=0.0
     plt.tight_layout()
     
     plt.plot(150,100,'b.')
-    
+    '''    
     f = (1-x_o[0])**2+a*(x_o[1]-x_o[0]**2)**2
     fold = f
     minf = f
@@ -228,18 +260,21 @@ def rosen(x_o=[-1.5,1.0],a=20.0,eta=0.001,threshold=0.001,maxiter=1000,alpha=0.0
                 it += 1
         except:
             print('Diverged!')
-            plt.show()
+            #plt.show()
             break
         
     if it == maxiter:
         print('Did not converge in %d steps, f = %f' %(it,f))
-        plt.show()
+        #plt.show()
         return x_o
     else:
         print('Converged in %d steps, f = %f' %(it+1,f))
-        plt.show()
+        #plt.show()
         return x_o
-    
+
+
 print('****STARTING Rosenbrock****')
-x_min = rosen(x_o=[-1.5,1.0],a=20.0,eta=0.001,threshold=.001,maxiter=1000,alpha=0,anim = 1,up = 1,down = 1,reduce = 1)
+x_min = rosen(x_o=[-1.5,1.0],a=100,eta=0.1,threshold=.001,maxiter=1000,alpha=0.925,anim = 0,up = 1,down = 1,reduce = 1)
 print('The estimated value is %s' %(x_min))
+
+
