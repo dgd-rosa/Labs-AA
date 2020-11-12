@@ -274,6 +274,6 @@ print("Confusion Matrix:\n {0}".format(conf_matrix))
 layers_idx = np.array([0,1,2,3])
 
 plt.figure()
-plt.imshow(test_x[i])
+plt.imshow(test_x[4])
 visualize_activations(cnn, layers_idx, test_x[4])
     
