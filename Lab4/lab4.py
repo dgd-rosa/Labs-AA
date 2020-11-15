@@ -14,7 +14,9 @@ from sklearn.metrics import accuracy_score
 import pandas as pd
 from sklearn.naive_bayes import MultinomialNB
 from scipy.stats import multivariate_normal
+from sklearn.feature_extraction.text import CountVectorizer
 
+#%%Starting
 #For computing the mean and variance
 def estimate_vals(x):
     return ( [ ( np.mean(column), np.var(column), len(column) ) for column in zip(*x) ] )
@@ -122,7 +124,7 @@ for i in range(len(x_test)):
 plt.show
 
 
-acc_score = accuracy_score(y_test, class_predict)
+acc_score_nb = accuracy_score(y_test, class_predict)
 
 
 #Now for the bayes method
@@ -141,5 +143,62 @@ for i in range(len(x_test)):
         if bayes[i, index] > max_prob[i]:
             max_prob[i] = bayes[i, index]
             class_predict[i] = index + 1
-            
+
+plt.figure()
+for i in range(len(x_test)):
+    if class_predict[i] == 1:
+        plt.scatter(x_test[i, 0], x_test[i,1], color='red', label='1', marker='o')
+    elif class_predict[i] == 2:
+        plt.scatter(x_test[i, 0], x_test[i,1], color='green', label='1', marker='o')
+    elif class_predict[i] == 3:
+        plt.scatter(x_test[i, 0], x_test[i,1], color='blue', label='1', marker='o')
+     
+        
+acc_score_b = accuracy_score(y_test, class_predict)
+#%% Part 3
+
+x_en = pd.read_csv('en_trigram_count.tsv', sep='\t', header=None, index_col=0)
+x_fr = pd.read_csv('fr_trigram_count.tsv', sep='\t', header=None, index_col=0)
+x_es = pd.read_csv('es_trigram_count.tsv', sep='\t', header=None, index_col=0)
+x_pt = pd.read_csv('pt_trigram_count.tsv', sep='\t', header=None, index_col=0)
+
+
+X_train = np.zeros((4, len(x_en)))
+X_train[0,:] = np.transpose(x_en[2])
+X_train[1,:] = np.transpose(x_fr[2])
+X_train[2,:] = np.transpose(x_es[2])
+X_train[3,:] = np.transpose(x_pt[2])
+
+Y_train = ['en', 'fr', 'es', 'pt']
+
+#MultinomialNB does the Laplace Smoothing for default
+naive_bayes = MultinomialNB(fit_prior=False, class_prior=[0.25, 0.25, 0.25, 0.25])
+
+nb_fit = naive_bayes.fit(X_train, Y_train)
+
+predictions = nb_fit.predict(X_train)
+
+accuracy_scr = accuracy_score(Y_train, predictions)
+
+cntVec = CountVectorizer(ngram_range=(3, 3), vocabulary=x_en[1], lowercase=True, analyzer='char')
+
+phrases = ['Que fácil es comer peras.', 'Que fácil é comer pêras.', 'Today is a great day for sightseeing.', 'Je vais au cinéma demain soir.',
+           'Ana es inteligente y simpática.', 'Tu vais à escola hoje.']
+
+
+X_test = cntVec.fit_transform(phrases)
+
+Y_test = ['es', 'pt', 'en', 'fr', 'es', 'pt']
+
+
+predictions = nb_fit.predict(X_test)
+accuracy_scr = accuracy_score(Y_test, predictions)
+
+
+predict_prob = nb_fit.predict_proba(X_test)
+
+sorted_predict = np.sort(predict_prob, axis=1)
+
+margin = sorted_predict[:, -1] - sorted_predict[:, -2]
+score = nb_fit.score(X_test, Y_test)
 
