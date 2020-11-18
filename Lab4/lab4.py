@@ -83,6 +83,7 @@ plt.ylabel('x2')
 plt.xlim(-5, 8)
 plt.ylim(-5, 8)
 plt.legend()
+plt.title("Train Set Plot")
 plt.show
 
 #Test set plot
@@ -95,7 +96,8 @@ plt.ylabel('x2')
 plt.xlim(-5, 8)
 plt.ylim(-5, 8)
 plt.legend()
-#plt.show
+plt.title("Test Set Plot")
+plt.show
 
 #1.3
 #First we compute the mean and variances
@@ -111,21 +113,28 @@ for i in range(len(x_test)):
         if prob[1] > max_prob[i]:
             max_prob[i] = prob[1]
             class_predict[i] = prob[0]
-            
+  
+plt.figure()
 #Predicted plot
 for i in range(len(x_test)):
     if class_predict[i] == 1:
-        plt.scatter(x_test[i, 0], x_test[i,1], color='red', label='1', marker='o')
+        plt.scatter(x_test[i, 0], x_test[i,1], color='red', label='1', marker='x')
     elif class_predict[i] == 2:
-        plt.scatter(x_test[i, 0], x_test[i,1], color='green', label='1', marker='o')
+        plt.scatter(x_test[i, 0], x_test[i,1], color='green', label='1', marker='x')
     elif class_predict[i] == 3:
-        plt.scatter(x_test[i, 0], x_test[i,1], color='blue', label='1', marker='o')
+        plt.scatter(x_test[i, 0], x_test[i,1], color='blue', label='1', marker='x')
 
+plt.xlabel('x1')
+plt.ylabel('x2')
+plt.xlim(-5, 8)
+plt.ylim(-5, 8)
+plt.title("Predicted Plot - NAIVE method")
 plt.show
 
 
 acc_score_nb = accuracy_score(y_test, class_predict)
 
+#%% BAYES
 
 #Now for the bayes method
 
@@ -147,12 +156,17 @@ for i in range(len(x_test)):
 plt.figure()
 for i in range(len(x_test)):
     if class_predict[i] == 1:
-        plt.scatter(x_test[i, 0], x_test[i,1], color='red', label='1', marker='o')
+        plt.scatter(x_test[i, 0], x_test[i,1], color='red', label='1', marker='x')
     elif class_predict[i] == 2:
-        plt.scatter(x_test[i, 0], x_test[i,1], color='green', label='1', marker='o')
+        plt.scatter(x_test[i, 0], x_test[i,1], color='green', label='1', marker='x')
     elif class_predict[i] == 3:
-        plt.scatter(x_test[i, 0], x_test[i,1], color='blue', label='1', marker='o')
-     
+        plt.scatter(x_test[i, 0], x_test[i,1], color='blue', label='1', marker='x')
+    
+plt.xlabel('x1')
+plt.ylabel('x2')
+plt.xlim(-5, 8)
+plt.ylim(-5, 8)
+plt.title("Predicted Plot - BAYES method")
         
 acc_score_b = accuracy_score(y_test, class_predict)
 #%% Part 3
@@ -202,3 +216,7 @@ sorted_predict = np.sort(predict_prob, axis=1)
 margin = sorted_predict[:, -1] - sorted_predict[:, -2]
 score = nb_fit.score(X_test, Y_test)
 
+print("Accuracy Score: ", accuracy_scr)
+print("Predictions: ", predictions)
+print("Predicted Probabilities: ", predict_prob)
+print("Margin: ", margin)
