@@ -197,7 +197,7 @@ acc_score_val = accuracy_score(desired_results_val, predicted_y_val)
 conf_matrix = confusion_matrix(desired_results, predicted_y)
 
 #Prints
-print("\nMLP with Early Stopping")
+print("\nMLP without Early Stopping")
 print("Accuracy Score: {0}".format(acc_score))
 print("Confusion Matrix:\n {0}".format(conf_matrix))
 
@@ -265,7 +265,7 @@ acc_score_val = accuracy_score(desired_results_val, predicted_y_val)
 conf_matrix = confusion_matrix(desired_results, predicted_y)
 
 #Prints
-print("\nMLP with Early Stopping")
+print("\n CNN")
 print("Accuracy Score: {0}".format(acc_score))
 print("Confusion Matrix:\n {0}".format(conf_matrix))
 
